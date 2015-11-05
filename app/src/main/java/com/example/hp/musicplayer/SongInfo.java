@@ -29,4 +29,6 @@ public class SongInfo {
     public String toString(){
         return path + ":" + filename + "\n";
     }
+
+    public String getPath() { return path; }
 }

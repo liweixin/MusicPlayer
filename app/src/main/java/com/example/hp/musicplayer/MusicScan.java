@@ -1,5 +1,7 @@
 package com.example.hp.musicplayer;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Message;
 import android.util.Log;
@@ -29,10 +31,11 @@ public class MusicScan{
     private String lyricPath;
     private float leastSize = 200.0f;   //音乐文件最低大小 单位KB
     private boolean isCompleted = false;
+    private MyDatabaseHelper dbHelper;
 
 
-
-    public MusicScan(){
+    public MusicScan(MyDatabaseHelper dbHelper){
+        this.dbHelper = dbHelper;
         directoryQueue = new LinkedList<File>();
         songDirList = new ArrayList<String>();
         songList = new ArrayList<SongInfo>();
@@ -40,7 +43,6 @@ public class MusicScan{
     }
 
     public void scan(String root) throws IOException {
-
         if(songList == null){
             songList = new ArrayList<SongInfo>();
         }else {
@@ -93,6 +95,12 @@ public class MusicScan{
                         si = new SongInfo(fileList[i].getAbsolutePath(), fileList[i].getName());
                         songList.add(si);  //添加进行歌曲列表songList
                         Log.e("SongList", fileList[i].getAbsolutePath() + "\n" + fileList[i].getName());
+                        SQLiteDatabase db = dbHelper.getWritableDatabase();
+                        ContentValues values = new ContentValues();
+                        values.put("path", si.getPath());
+                        values.put("fileName", si.getFilename());
+                        db.insert("musicList", null, values);
+
                     }else if (Lyric.isLyric(fileList[i])) {
                         //是歌词文件
                         System.out.println("是歌词文件" + fileList[i].getName());
