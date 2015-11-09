@@ -18,6 +18,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer mediaPlayer = new MediaPlayer();
     public ArrayAdapter<SongInfo> adapter;
     public MyDatabaseHelper dbHelper;
+    int currentId;
+    final ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
 
     public Handler handler = new Handler(){
         @Override
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mediaPlayer.reset();
             mediaPlayerInit(songInfo.getPath());
             mediaPlayer.start();
+            Toast.makeText(getApplicationContext(),String.valueOf(mediaPlayer.getDuration()),Toast.LENGTH_LONG).show();
         }
     }
 
@@ -120,12 +125,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         buttonInit();
         mediaPlayerInit(path.getText().toString());
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                Toast.makeText(getApplicationContext(), "播放完毕", Toast.LENGTH_LONG).show();
+                playMusic(songList.get(++currentId));
+            }
+        });
         dbHelper = new MyDatabaseHelper(this, "MusicList.db", null, 1);
         if(1==2/*if database not exist*/){
             searchFilesOnThread();
         } else {
             //get listView.
-            final ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String[] colomus = new String[] {"path", "fileName"};
             Cursor cursor = db.query("musicList", colomus, null, null, null, null, null);
@@ -145,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    currentId = i;
                     SongInfo songInfo = songList.get(i);  //should get songInfo List in the same place, or errors may occur.
                     playMusic(songInfo);
                 }
