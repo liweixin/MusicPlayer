@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -25,14 +26,15 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button play, pause, stop, refresh;
+    private Button play, pause, stop, refresh, next, previous, setMode;
+    TextView len;
     MusicScan scan;
     EditText path;
     private MediaPlayer mediaPlayer = new MediaPlayer();
     public ArrayAdapter<SongInfo> adapter;
     public MyDatabaseHelper dbHelper;
-    int currentId;
     final ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
+    PlayControl playControl;
 
     public Handler handler = new Handler(){
         @Override
@@ -47,35 +49,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             SongInfo songInfo = scan.getSongList().get(i);
+                            playControl = new PlayControl(scan.getSongList().size(), PlayControl.TURNS);
                             playMusic(songInfo);
                         }
                     });
             }
         }
     };
-
+    private String changeToTime(int milliseconds){
+        milliseconds = milliseconds / 1000;
+        int minute = milliseconds / 60;
+        int second = milliseconds % 60;
+        if(second<10){
+            return minute + ":0" + second;
+        } else {
+            return minute + ":" + second;
+        }
+    }
     public void playMusic(SongInfo songInfo){
         if(songInfo==null){
             Log.e("In play music:", "Invalid songInfo.");
             return;
         }
-        if(!mediaPlayer.isPlaying()) {
+        if(mediaPlayer.isPlaying()) {
             mediaPlayer.reset();
-            mediaPlayerInit(songInfo.getPath());
-            mediaPlayer.start();
-            Toast.makeText(getApplicationContext(),String.valueOf(mediaPlayer.getDuration()),Toast.LENGTH_LONG).show();
         }
+        mediaPlayer.reset();
+        mediaPlayerInit(songInfo.getPath());
+        mediaPlayer.start();
+        int duration = mediaPlayer.getDuration();
+        Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
+        len.setText(changeToTime(duration));
     }
 
     @Override
     public void onClick(View view){
         switch (view.getId()){
             case R.id.play:
-                if(!mediaPlayer.isPlaying()) {
+              /* if(!mediaPlayer.isPlaying()) {
                     mediaPlayer.reset();
                     mediaPlayerInit(path.getText().toString());
                     mediaPlayer.start();
-                }
+                }*/
+                playMusic(songList.get(playControl.getCurrentId()));
                 break;
             case R.id.pause:
                 if(mediaPlayer.isPlaying())
@@ -88,6 +104,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.refresh:
+                searchFilesOnThread();
+                break;
+            case R.id.previous:
+                if(mediaPlayer.isPlaying()) {
+                    mediaPlayer.reset();
+                    mediaPlayerInit(path.getText().toString());
+                }
+                playMusic(songList.get(playControl.getPreviousSong()));
+                break;
+            case R.id.next:
+                if(mediaPlayer.isPlaying()) {
+                    mediaPlayer.reset();
+                    mediaPlayerInit(path.getText().toString());
+                }
+                playMusic(songList.get(playControl.getNextSong()));
+                break;
+            case R.id.set_mode:
+                playControl.nextPlayMode();
+                switch (playControl.getPlayMode()){
+                    case PlayControl.TURNS:
+                        setMode.setText("顺序播放");
+                        break;
+                    case PlayControl.RANDOM:
+                        setMode.setText("随机播放");
+                        break;
+                    case PlayControl.SINGLE:
+                        setMode.setText("单曲循环");
+                        break;
+                }
                 break;
         }
     }
@@ -99,7 +144,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pause.setOnClickListener(this);
         stop = (Button) findViewById(R.id.stop);
         stop.setOnClickListener(this);
+        refresh = (Button) findViewById(R.id.refresh);
+        refresh.setOnClickListener(this);
+        previous = (Button) findViewById(R.id.previous);
+        previous.setOnClickListener(this);
+        next = (Button) findViewById(R.id.next);
+        next.setOnClickListener(this);
+        setMode = (Button) findViewById(R.id.set_mode);
+        setMode.setOnClickListener(this);
+
         path = (EditText) findViewById(R.id.path);
+        len = (TextView) findViewById(R.id.len);
     }
 
     private void searchFilesOnThread(){
@@ -129,17 +184,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 Toast.makeText(getApplicationContext(), "播放完毕", Toast.LENGTH_LONG).show();
-                playMusic(songList.get(++currentId));
+                playMusic(songList.get(playControl.findNextSong()));
             }
         });
         dbHelper = new MyDatabaseHelper(this, "MusicList.db", null, 1);
-        if(1==2/*if database not exist*/){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String[] colomus = new String[] {"path", "fileName"};
+        Cursor cursor = db.query("musicList", colomus, null, null, null, null, null);
+        if(cursor.getCount()==0/*if database not exist*/){
+            cursor.close();
             searchFilesOnThread();
         } else {
             //get listView.
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            String[] colomus = new String[] {"path", "fileName"};
-            Cursor cursor = db.query("musicList", colomus, null, null, null, null, null);
+            playControl = new PlayControl(cursor.getCount(), PlayControl.TURNS);
+            Toast.makeText(getApplicationContext(), String.valueOf(cursor.getCount()), Toast.LENGTH_LONG).show();
             SongInfo songInfo;
             if (cursor.moveToFirst()){
                 do{
@@ -156,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    currentId = i;
+                    playControl.setCurrentId(i);
                     SongInfo songInfo = songList.get(i);  //should get songInfo List in the same place, or errors may occur.
                     playMusic(songInfo);
                 }
