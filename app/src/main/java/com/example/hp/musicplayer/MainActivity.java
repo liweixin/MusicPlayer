@@ -1,5 +1,9 @@
 package com.example.hp.musicplayer;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,7 +30,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button play, pause, stop, refresh, next, previous, setMode;
+    private Button tab1, tab2, tab3;
+    private Button setMode;
     TextView len;
     MusicScan scan;
     EditText path;
@@ -42,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (msg.what) {
                 case 1:
                     Log.e("Create ListView:", ">.<");
-                    ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(MainActivity.this, android.R.layout.simple_list_item_1, scan.getSongList());
+                    /*ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(MainActivity.this, android.R.layout.simple_list_item_1, scan.getSongList());
                     ListView musicList = (ListView) findViewById(R.id.music_list);
                     musicList.setAdapter(adapter);
                     musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -52,7 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             playControl = new PlayControl(scan.getSongList().size(), PlayControl.TURNS);
                             playMusic(songInfo);
                         }
-                    });
+                    });*/
+                    //setListView();
             }
         }
     };
@@ -82,74 +88,86 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         len.setText(changeToTime(duration));
     }
 
+    public void play(){
+        playMusic(songList.get(playControl.getCurrentId()));
+    }
+    public void pause(){
+        if(mediaPlayer.isPlaying())
+            mediaPlayer.pause();
+    }
+    public void stop(){
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.reset();
+            mediaPlayerInit(path.getText().toString());
+        }
+    }
+    public void refresh(){
+        searchFilesOnThread();
+    }
+    public void previous(){
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.reset();
+            mediaPlayerInit(path.getText().toString());
+        }
+        playMusic(songList.get(playControl.getPreviousSong()));
+    }
+    public void next(){
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.reset();
+            mediaPlayerInit(path.getText().toString());
+        }
+        playMusic(songList.get(playControl.getNextSong()));
+    }
+    public void setMode(){
+        playControl.nextPlayMode();
+        switch (playControl.getPlayMode()){
+            case PlayControl.TURNS:
+                setMode.setText("顺序播放");
+                break;
+            case PlayControl.RANDOM:
+                setMode.setText("随机播放");
+                break;
+            case PlayControl.SINGLE:
+                setMode.setText("单曲循环");
+                break;
+        }
+    }
     @Override
     public void onClick(View view){
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         switch (view.getId()){
-            case R.id.play:
-              /* if(!mediaPlayer.isPlaying()) {
-                    mediaPlayer.reset();
-                    mediaPlayerInit(path.getText().toString());
-                    mediaPlayer.start();
-                }*/
-                playMusic(songList.get(playControl.getCurrentId()));
+            case R.id.tab1:
+                FirstFragment firstFragment = new FirstFragment();
+                transaction.replace(R.id.fragment_layout, firstFragment);
+                transaction.commit();
+                Toast.makeText(getApplicationContext(), "Tab1 pressed", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.pause:
-                if(mediaPlayer.isPlaying())
-                    mediaPlayer.pause();
+            case R.id.tab2:
+                SecondFragment secondFragment = new SecondFragment();
+                transaction.replace(R.id.fragment_layout, secondFragment);
+                transaction.commit();
+                Toast.makeText(getApplicationContext(), "Tab2 pressed", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.stop:
-                if(mediaPlayer.isPlaying()) {
-                    mediaPlayer.reset();
-                    mediaPlayerInit(path.getText().toString());
-                }
-                break;
-            case R.id.refresh:
-                searchFilesOnThread();
-                break;
-            case R.id.previous:
-                if(mediaPlayer.isPlaying()) {
-                    mediaPlayer.reset();
-                    mediaPlayerInit(path.getText().toString());
-                }
-                playMusic(songList.get(playControl.getPreviousSong()));
-                break;
-            case R.id.next:
-                if(mediaPlayer.isPlaying()) {
-                    mediaPlayer.reset();
-                    mediaPlayerInit(path.getText().toString());
-                }
-                playMusic(songList.get(playControl.getNextSong()));
+            case R.id.tab3:
+                ThirdFragment thirdFragment = new ThirdFragment();
+                transaction.replace(R.id.fragment_layout, thirdFragment);
+                transaction.commit();
+                Toast.makeText(getApplicationContext(), "Tab3 pressed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.set_mode:
-                playControl.nextPlayMode();
-                switch (playControl.getPlayMode()){
-                    case PlayControl.TURNS:
-                        setMode.setText("顺序播放");
-                        break;
-                    case PlayControl.RANDOM:
-                        setMode.setText("随机播放");
-                        break;
-                    case PlayControl.SINGLE:
-                        setMode.setText("单曲循环");
-                        break;
-                }
+                setMode();
                 break;
         }
     }
 
     private void buttonInit(){
-        play = (Button) findViewById(R.id.play);
-        play.setOnClickListener(this);
-        pause = (Button) findViewById(R.id.pause);
-        pause.setOnClickListener(this);
-        stop = (Button) findViewById(R.id.stop);
-        stop.setOnClickListener(this);
-        refresh = (Button) findViewById(R.id.refresh);
-        refresh.setOnClickListener(this);
-        previous = (Button) findViewById(R.id.previous);
-        previous.setOnClickListener(this);
-        next = (Button) findViewById(R.id.next);
-        next.setOnClickListener(this);
+        tab1 = (Button) findViewById(R.id.tab1);
+        tab1.setOnClickListener(this);
+        tab2 = (Button) findViewById(R.id.tab2);
+        tab2.setOnClickListener(this);
+        tab3 = (Button) findViewById(R.id.tab3);
+        tab3.setOnClickListener(this);
         setMode = (Button) findViewById(R.id.set_mode);
         setMode.setOnClickListener(this);
 
@@ -208,18 +226,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } while(cursor.moveToNext());
             }
             cursor.close();
-            ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(MainActivity.this, android.R.layout.simple_list_item_1, songList);
-            ListView musicList = (ListView) findViewById(R.id.music_list);
-            musicList.setAdapter(adapter);
-            musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    playControl.setCurrentId(i);
-                    SongInfo songInfo = songList.get(i);  //should get songInfo List in the same place, or errors may occur.
-                    playMusic(songInfo);
-                }
-            });
+            //setListView();
         }
+    }
+
+    public void setListView(){
+        ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(this, android.R.layout.simple_list_item_1, songList);
+        ListView musicList = (ListView) findViewById(R.id.music_list);
+        musicList.setAdapter(adapter);
+        musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                playControl.setCurrentId(i);
+                SongInfo songInfo = songList.get(i);  //should get songInfo List in the same place, or errors may occur.
+                playMusic(songInfo);
+            }
+        });
     }
 
     private void mediaPlayerInit(String path){
