@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.logic;
 
 import android.util.Log;
 

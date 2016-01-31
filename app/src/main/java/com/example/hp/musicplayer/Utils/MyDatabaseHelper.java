@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.Utils;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

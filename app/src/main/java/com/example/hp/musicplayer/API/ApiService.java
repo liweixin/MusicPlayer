@@ -1,7 +1,6 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.API;
 
 import retrofit.http.GET;
-import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
 

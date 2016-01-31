@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.fragment;
 
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.example.hp.musicplayer.MainActivity;
+import com.example.hp.musicplayer.R;
 
 /**
  * Created by HP on 2015/11/13.

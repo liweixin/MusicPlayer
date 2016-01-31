@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.datastructure;
 
 import java.io.File;
 

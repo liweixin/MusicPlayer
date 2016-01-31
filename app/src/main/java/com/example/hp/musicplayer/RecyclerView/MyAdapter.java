@@ -8,7 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hp.musicplayer.R;
-import com.example.hp.musicplayer.SongInfo;
+import com.example.hp.musicplayer.datastructure.SongInfo;
 import com.example.hp.musicplayer.Utils.Utils;
 
 import java.util.List;

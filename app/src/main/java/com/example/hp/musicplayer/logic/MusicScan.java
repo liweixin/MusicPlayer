@@ -1,13 +1,12 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.logic;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
-import android.os.Message;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+
+import com.example.hp.musicplayer.Utils.MyDatabaseHelper;
+import com.example.hp.musicplayer.datastructure.Lyric;
+import com.example.hp.musicplayer.datastructure.SongInfo;
 
 import java.io.File;
 import java.io.IOException;

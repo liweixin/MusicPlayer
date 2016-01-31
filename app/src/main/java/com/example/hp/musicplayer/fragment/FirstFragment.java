@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.fragment;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.example.hp.musicplayer.MainActivity;
+import com.example.hp.musicplayer.R;
 
 /**
  * Created by HP on 2015/11/13.

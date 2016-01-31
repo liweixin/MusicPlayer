@@ -55,7 +55,7 @@
         android:layout_height="wrap_content">
         <fragment
             android:id="@+id/first_fragment"
-            android:name="com.example.hp.musicplayer.FirstFragment"
+            android:name="com.example.hp.musicplayer.fragment.FirstFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </FrameLayout>

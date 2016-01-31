@@ -1,13 +1,9 @@
 package com.example.hp.musicplayer;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
@@ -16,25 +12,27 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hp.musicplayer.API.MusicApi;
 import com.example.hp.musicplayer.RecyclerView.DividerItemDecoration;
 import com.example.hp.musicplayer.RecyclerView.MyAdapter;
 import com.example.hp.musicplayer.RecyclerView.OnRecyclerViewItemClickListener;
+import com.example.hp.musicplayer.Utils.MyDatabaseHelper;
 import com.example.hp.musicplayer.Utils.Utils;
+import com.example.hp.musicplayer.datastructure.SongInfo;
+import com.example.hp.musicplayer.fragment.FirstFragment;
+import com.example.hp.musicplayer.fragment.SecondFragment;
+import com.example.hp.musicplayer.fragment.ThirdFragment;
+import com.example.hp.musicplayer.logic.MusicScan;
+import com.example.hp.musicplayer.logic.PlayControl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 

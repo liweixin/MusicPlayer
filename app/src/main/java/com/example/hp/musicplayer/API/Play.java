@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer;
+package com.example.hp.musicplayer.API;
 
 /**
  * Created by lwx on 2016/1/28.
