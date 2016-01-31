@@ -1,8 +1,6 @@
 package com.example.hp.musicplayer.datastructure;
 
-import android.util.Log;
-
-import com.example.hp.musicplayer.constants.Constants;
+import com.example.hp.musicplayer.Utils.Constants;
 
 import java.io.File;
 
@@ -18,6 +16,11 @@ public class SongInfo {
     public SongInfo(String path, String filename){
         this.path = path;
         this.filename = filename;
+    }
+    public SongInfo(String path, String filename, String artist) {
+        this.filename = filename;
+        this.artist = artist;
+        this.path = null;
     }
     public static boolean isSong(File file){
         String st = file.getName();

@@ -1,4 +1,4 @@
-package com.example.hp.musicplayer.constants;
+package com.example.hp.musicplayer.Utils;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

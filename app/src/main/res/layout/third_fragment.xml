@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#00ffff">
     <EditText
-        android:id="@+id/url"
+        android:id="@+id/search_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <LinearLayout
@@ -21,4 +21,5 @@
             android:layout_height="wrap_content"
             android:text="播放"/>
     </LinearLayout>
+    <include layout="@layout/recycler_view_search" />
 </LinearLayout>

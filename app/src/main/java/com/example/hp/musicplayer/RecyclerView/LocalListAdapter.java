@@ -16,15 +16,15 @@ import java.util.List;
 /**
  * Created by lwx on 2016/1/31.
  */
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implements View.OnClickListener {
+public class LocalListAdapter extends RecyclerView.Adapter<LocalListAdapter.ViewHolder> implements View.OnClickListener {
 
-    private OnRecyclerViewItemClickListener mOnItemClickListener = null;
-    public void setmOnItemClickListener(OnRecyclerViewItemClickListener listener){
+    private LocalListOnItemClickListener mOnItemClickListener = null;
+    public void setmOnItemClickListener(LocalListOnItemClickListener listener){
         this.mOnItemClickListener = listener;
     }
 
     public List<SongInfo> datas;
-    public MyAdapter (List<SongInfo> datas){
+    public LocalListAdapter(List<SongInfo> datas){
         this.datas = datas;
     }
 

@@ -102,7 +102,7 @@ public class MusicScan{
 
                     }else if (Lyric.isLyric(fileList[i])) {
                         //是歌词文件
-                        System.out.println("是歌词文件" + fileList[i].getName());
+                       Log.e("是歌词文件", fileList[i].getName());
                         Lyric lyric = new Lyric(fileList[i].getPath(),fileList[i].getName());
                         lyricList.add(lyric);
                     }

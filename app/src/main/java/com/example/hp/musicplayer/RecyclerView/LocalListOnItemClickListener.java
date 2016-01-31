@@ -7,6 +7,6 @@ import com.example.hp.musicplayer.datastructure.SongInfo;
 /**
  * Created by lwx on 2016/1/31.
  */
-public interface OnRecyclerViewItemClickListener {
+public interface LocalListOnItemClickListener {
     void onItemClick(View view, SongInfo songInfo);
 }

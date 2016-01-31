@@ -18,10 +18,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.hp.musicplayer.API.MusicApi;
-import com.example.hp.musicplayer.RecyclerView.DividerItemDecoration;
-import com.example.hp.musicplayer.RecyclerView.MyAdapter;
-import com.example.hp.musicplayer.RecyclerView.OnRecyclerViewItemClickListener;
+import com.example.hp.musicplayer.logic.MusicApi;
+import com.example.hp.musicplayer.RecyclerView.LocalListDecoration;
+import com.example.hp.musicplayer.RecyclerView.LocalListAdapter;
+import com.example.hp.musicplayer.RecyclerView.LocalListOnItemClickListener;
 import com.example.hp.musicplayer.Utils.MyDatabaseHelper;
 import com.example.hp.musicplayer.Utils.Utils;
 import com.example.hp.musicplayer.datastructure.SongInfo;
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer mediaPlayer = new MediaPlayer();
     public MyDatabaseHelper dbHelper;
     ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
-    PlayControl playControl;
+    public PlayControl playControl;
 
     MusicApi musicApi;
 
@@ -66,9 +66,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayerInit(url);
         mediaPlayer.start();
     }
-    public void setSongName(String s){
+    public void setSongName(String s, ThirdFragment fragment){
         musicApi = new MusicApi();
-        musicApi.setUrl(s, getApplicationContext());
+        musicApi.setUrl(s, getApplicationContext(), fragment);
     }
     private String changeToTime(int milliseconds){
         milliseconds = milliseconds / 1000;
@@ -90,6 +90,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mediaPlayer.reset();
         mediaPlayerInit(songInfo.getPath());
+        mediaPlayer.start();
+        int duration = mediaPlayer.getDuration();
+        //Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
+        Utils.getInstance().toast("歌曲长度：" + String.valueOf(duration));
+        len.setText(changeToTime(duration));
+    }
+    public void playOnlineMusic(String path) {
+        if (path==null){
+            Log.e("In play online music:", "Invalid path.");
+            return;
+        }
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.reset();
+        }
+        mediaPlayer.reset();
+        mediaPlayerInit(path);
         mediaPlayer.start();
         int duration = mediaPlayer.getDuration();
         //Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
@@ -273,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     RecyclerView recyclerView;
     LinearLayoutManager layoutManager;
-    MyAdapter adapter;
+    LocalListAdapter adapter;
     public void initRecyclerView(View view) {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         if(recyclerView==null)
@@ -281,8 +297,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         layoutManager = new LinearLayoutManager(this);
         //layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter = new MyAdapter(songList));
-        adapter.setmOnItemClickListener(new OnRecyclerViewItemClickListener() {
+        recyclerView.setAdapter(adapter = new LocalListAdapter(songList));
+        adapter.setmOnItemClickListener(new LocalListOnItemClickListener() {
             @Override
             public void onItemClick(View view, SongInfo item) {
                 Utils.getInstance().toast(item.getFilename() + " pressed.", Toast.LENGTH_SHORT);
@@ -292,6 +308,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         recyclerView.setHasFixedSize(true);
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        recyclerView.addItemDecoration(new LocalListDecoration(this, LocalListDecoration.VERTICAL_LIST));
     }
 }
