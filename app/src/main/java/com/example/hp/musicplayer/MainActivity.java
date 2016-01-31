@@ -25,6 +25,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hp.musicplayer.Utils.Utils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -66,8 +68,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
     public void playSongName(){
         String url = musicApi.getUrl();
-        Toast.makeText(getApplicationContext(), url, Toast.LENGTH_LONG).show();
-        Log.e("URL:",url);
+        //Toast.makeText(getApplicationContext(), url, Toast.LENGTH_LONG).show();
+        Utils.getInstance().toast("歌曲网址：" + url);
+        Log.e("URL:", url);
         mediaPlayer.reset();
         mediaPlayerInit(url);
         mediaPlayer.start();
@@ -98,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayerInit(songInfo.getPath());
         mediaPlayer.start();
         int duration = mediaPlayer.getDuration();
-        Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
+        Utils.getInstance().toast("歌曲长度：" + String.valueOf(duration));
         len.setText(changeToTime(duration));
     }
 
@@ -155,19 +159,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 FirstFragment firstFragment = new FirstFragment();
                 transaction.replace(R.id.fragment_layout, firstFragment);
                 transaction.commit();
-                Toast.makeText(getApplicationContext(), "Tab1 pressed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.tab2:
                 SecondFragment secondFragment = new SecondFragment();
                 transaction.replace(R.id.fragment_layout, secondFragment);
                 transaction.commit();
-                Toast.makeText(getApplicationContext(), "Tab2 pressed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.tab3:
                 ThirdFragment thirdFragment = new ThirdFragment();
                 transaction.replace(R.id.fragment_layout, thirdFragment);
                 transaction.commit();
-                Toast.makeText(getApplicationContext(), "Tab3 pressed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.set_mode:
                 setMode();
@@ -210,12 +211,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Utils.getInstance().init(this);
         buttonInit();
         mediaPlayerInit(path.getText().toString());
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                Toast.makeText(getApplicationContext(), "播放完毕", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "播放完毕", Toast.LENGTH_LONG).show();
+                Utils.getInstance().toast("播放完毕");
                 playMusic(songList.get(playControl.findNextSong()));
             }
         });
@@ -229,7 +232,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             //get listView.
             playControl = new PlayControl(cursor.getCount(), PlayControl.TURNS);
-            Toast.makeText(getApplicationContext(), String.valueOf(cursor.getCount()), Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), String.valueOf(cursor.getCount()), Toast.LENGTH_LONG).show();
+            Utils.getInstance().toast("歌曲总数：" + String.valueOf(cursor.getCount()));
             SongInfo songInfo;
             if (cursor.moveToFirst()){
                 do{
