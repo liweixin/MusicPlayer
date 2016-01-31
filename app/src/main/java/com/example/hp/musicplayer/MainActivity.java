@@ -13,6 +13,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,10 +27,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hp.musicplayer.RecyclerView.DividerItemDecoration;
+import com.example.hp.musicplayer.RecyclerView.MyAdapter;
+import com.example.hp.musicplayer.RecyclerView.OnRecyclerViewItemClickListener;
 import com.example.hp.musicplayer.Utils.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -38,9 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MusicScan scan;
     EditText path;
     private MediaPlayer mediaPlayer = new MediaPlayer();
-    public ArrayAdapter<SongInfo> adapter;
     public MyDatabaseHelper dbHelper;
-    final ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
+    ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
     PlayControl playControl;
 
     MusicApi musicApi;
@@ -51,18 +56,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (msg.what) {
                 case 1:
                     Log.e("Create ListView:", ">.<");
-                    /*ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(MainActivity.this, android.R.layout.simple_list_item_1, scan.getSongList());
-                    ListView musicList = (ListView) findViewById(R.id.music_list);
-                    musicList.setAdapter(adapter);
-                    musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            SongInfo songInfo = scan.getSongList().get(i);
-                            playControl = new PlayControl(scan.getSongList().size(), PlayControl.TURNS);
-                            playMusic(songInfo);
-                        }
-                    });*/
-                    //setListView();
             }
         }
     };
@@ -248,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void setListView(){
+   /* public void setListView(){
         ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(this, android.R.layout.simple_list_item_1, songList);
         ListView musicList = (ListView) findViewById(R.id.music_list);
         musicList.setAdapter(adapter);
@@ -260,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playMusic(songInfo);
             }
         });
-    }
+    }*/
 
     private void mediaPlayerInit(String path){
         try{
@@ -278,5 +271,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mediaPlayer.stop();
             mediaPlayer.release();
         }
+    }
+
+    RecyclerView recyclerView;
+    LinearLayoutManager layoutManager;
+    MyAdapter adapter;
+    public void initRecyclerView(View view) {
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        if(recyclerView==null)
+            Log.e("recyclerView", "" + (recyclerView==null));
+        layoutManager = new LinearLayoutManager(this);
+        //layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter = new MyAdapter(songList));
+        adapter.setmOnItemClickListener(new OnRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View view, SongInfo item) {
+                Utils.getInstance().toast(item.getFilename() + " pressed.", Toast.LENGTH_SHORT);
+                int i = songList.indexOf(item);
+                playControl.setCurrentId(i); //should get songInfo List in the same place, or errors may occur.
+                playMusic(item);
+            }
+        });
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
     }
 }

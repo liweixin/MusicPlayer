@@ -3,9 +3,5 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffFFFF">
-    <ListView
-        android:id="@+id/music_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </ListView>
+    <include layout="@layout/recycler_view" />
 </LinearLayout>

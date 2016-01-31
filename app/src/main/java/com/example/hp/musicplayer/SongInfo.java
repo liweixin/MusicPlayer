@@ -2,6 +2,8 @@ package com.example.hp.musicplayer;
 
 import android.util.Log;
 
+import com.example.hp.musicplayer.constants.Constants;
+
 import java.io.File;
 
 /**
@@ -19,8 +21,13 @@ public class SongInfo {
     }
     public static boolean isSong(File file){
         String st = file.getName();
-        if(st.length()<4) return false;
-        return (st.lastIndexOf(".mp3")==st.length()-4);
+        int len = st.length();
+        if (len<4) {
+            return false;
+        } else {
+            String fileNameExtation = st.substring(st.length()-3);
+            return Constants.IS_SONG.contains(fileNameExtation);
+        }
     }
     public String getFilename(){
         return filename;
@@ -31,4 +38,12 @@ public class SongInfo {
     }
 
     public String getPath() { return path; }
+
+    public String getArtist() {
+        if (artist==null) {
+            return "null";
+        } else {
+            return artist;
+        }
+    }
 }

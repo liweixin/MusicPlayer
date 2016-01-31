@@ -21,6 +21,7 @@ public class SecondFragment extends Fragment {
     public void onStart(){
         super.onStart();
         mainActivity = (MainActivity) getActivity();
-        mainActivity.setListView();
+        //mainActivity.setListView();
+        mainActivity.initRecyclerView(view);
     }
 }
