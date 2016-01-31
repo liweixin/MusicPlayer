@@ -1,7 +1,9 @@
 package com.example.hp.musicplayer;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
@@ -19,9 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hp.musicplayer.logic.MusicApi;
-import com.example.hp.musicplayer.RecyclerView.LocalListDecoration;
-import com.example.hp.musicplayer.RecyclerView.LocalListAdapter;
-import com.example.hp.musicplayer.RecyclerView.LocalListOnItemClickListener;
 import com.example.hp.musicplayer.Utils.MyDatabaseHelper;
 import com.example.hp.musicplayer.Utils.Utils;
 import com.example.hp.musicplayer.datastructure.SongInfo;
@@ -39,11 +38,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button tab1, tab2, tab3;
     private Button setMode;
     TextView len;
-    MusicScan scan;
+    public MusicScan scan;
     EditText path;
     private MediaPlayer mediaPlayer = new MediaPlayer();
     public MyDatabaseHelper dbHelper;
-    ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
+    public ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
     public PlayControl playControl;
 
     MusicApi musicApi;
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
     public void playSongName(){
         String url = musicApi.getUrl();
-        //Toast.makeText(getApplicationContext(), url, Toast.LENGTH_LONG).show();
         Utils.getInstance().toast("歌曲网址：" + url);
         Log.e("URL:", url);
         mediaPlayer.reset();
@@ -92,8 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayerInit(songInfo.getPath());
         mediaPlayer.start();
         int duration = mediaPlayer.getDuration();
-        //Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
-        Utils.getInstance().toast("歌曲长度：" + String.valueOf(duration));
+        Utils.getInstance().toast("歌曲长度：" + String.valueOf(Utils.getInstance().changeToTime(duration)));
         len.setText(changeToTime(duration));
     }
     public void playOnlineMusic(String path) {
@@ -108,8 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayerInit(path);
         mediaPlayer.start();
         int duration = mediaPlayer.getDuration();
-        //Toast.makeText(getApplicationContext(),String.valueOf(duration),Toast.LENGTH_LONG).show();
-        Utils.getInstance().toast("歌曲长度：" + String.valueOf(duration));
+        Utils.getInstance().toast("歌曲长度：" + String.valueOf(Utils.getInstance().changeToTime(duration)));
         len.setText(changeToTime(duration));
     }
 
@@ -157,25 +153,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
     @Override
-    public void onClick(View view){
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        switch (view.getId()){
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.tab1:
-                FirstFragment firstFragment = new FirstFragment();
-                transaction.replace(R.id.fragment_layout, firstFragment);
-                transaction.commit();
+                setTabSelection(TAB_1);
                 break;
             case R.id.tab2:
-                SecondFragment secondFragment = new SecondFragment();
-                transaction.replace(R.id.fragment_layout, secondFragment);
-                transaction.commit();
+                setTabSelection(TAB_2);
                 break;
             case R.id.tab3:
-                ThirdFragment thirdFragment = new ThirdFragment();
-                transaction.replace(R.id.fragment_layout, thirdFragment);
-                transaction.commit();
+                setTabSelection(TAB_3);
                 break;
             case R.id.set_mode:
                 setMode();
@@ -193,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setMode = (Button) findViewById(R.id.set_mode);
         setMode.setOnClickListener(this);
 
-        path = (EditText) findViewById(R.id.path);
         len = (TextView) findViewById(R.id.len);
     }
 
@@ -207,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Message msg = new Message();
                     msg.what = 1;
                     handler.sendMessage(msg);
+                    initSongList();
                 } catch (IOException e){
                     e.printStackTrace();
                 }
@@ -218,29 +207,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Utils.getInstance().init(this);
+        playControl = new PlayControl(0, PlayControl.TURNS);
+        Utils.getInstance().init(this, this);
         buttonInit();
-        mediaPlayerInit(path.getText().toString());
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                //Toast.makeText(getApplicationContext(), "播放完毕", Toast.LENGTH_LONG).show();
                 Utils.getInstance().toast("播放完毕");
                 playMusic(songList.get(playControl.findNextSong()));
             }
         });
+        initSongList();
+    }
+
+    private void initSongList() {
         dbHelper = new MyDatabaseHelper(this, "MusicList.db", null, 1);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String[] colomus = new String[] {"path", "fileName"};
         Cursor cursor = db.query("musicList", colomus, null, null, null, null, null);
-        if(cursor.getCount()==0/*if database not exist*/){
+        if(cursor.getCount()==0){
             cursor.close();
             searchFilesOnThread();
         } else {
             //get listView.
-            playControl = new PlayControl(cursor.getCount(), PlayControl.TURNS);
-            //Toast.makeText(getApplicationContext(), String.valueOf(cursor.getCount()), Toast.LENGTH_LONG).show();
-            Utils.getInstance().toast("歌曲总数：" + String.valueOf(cursor.getCount()));
+            playControl.setSize(cursor.getCount());
+            Log.e("歌曲总数：", String.valueOf(cursor.getCount()));
             SongInfo songInfo;
             if (cursor.moveToFirst()){
                 do{
@@ -251,27 +242,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } while(cursor.moveToNext());
             }
             cursor.close();
-            //setListView();
+            if (secondFragment!=null) {
+                ((SecondFragment)secondFragment).setAdapter();
+            }
         }
     }
 
-   /* public void setListView(){
-        ArrayAdapter<SongInfo> adapter = new ArrayAdapter<SongInfo>(this, android.R.layout.simple_list_item_1, songList);
-        ListView musicList = (ListView) findViewById(R.id.music_list);
-        musicList.setAdapter(adapter);
-        musicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                playControl.setCurrentId(i);
-                SongInfo songInfo = songList.get(i);  //should get songInfo List in the same place, or errors may occur.
-                playMusic(songInfo);
-            }
-        });
-    }*/
-
     private void mediaPlayerInit(String path){
         try{
-           // File file = new File(Environment.getExternalStorageDirectory(), "music.mp3");
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
         }catch (IOException e){
@@ -287,27 +265,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    RecyclerView recyclerView;
-    LinearLayoutManager layoutManager;
-    LocalListAdapter adapter;
-    public void initRecyclerView(View view) {
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        if(recyclerView==null)
-            Log.e("recyclerView", "" + (recyclerView==null));
-        layoutManager = new LinearLayoutManager(this);
-        //layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter = new LocalListAdapter(songList));
-        adapter.setmOnItemClickListener(new LocalListOnItemClickListener() {
-            @Override
-            public void onItemClick(View view, SongInfo item) {
-                Utils.getInstance().toast(item.getFilename() + " pressed.", Toast.LENGTH_SHORT);
-                int i = songList.indexOf(item);
-                playControl.setCurrentId(i); //should get songInfo List in the same place, or errors may occur.
-                playMusic(item);
-            }
-        });
-        recyclerView.setHasFixedSize(true);
-        recyclerView.addItemDecoration(new LocalListDecoration(this, LocalListDecoration.VERTICAL_LIST));
+    public static final int TAB_1 = 1;
+    public static final int TAB_2 = 2;
+    public static final int TAB_3 = 3;
+    int position;
+    Fragment firstFragment, secondFragment, thirdFragment;
+    private void setTabSelection(int position) {
+        //记录position
+        this.position = position;
+        //更改底部导航栏按钮状态
+        //changeButtonStatus(position);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        // 先隐藏掉所有的Fragment，以防止有多个Fragment显示在界面上的情况
+        hideFragment(transaction);
+        switch (position) {
+            case TAB_1:
+                tab1.setSelected(true);
+                tab2.setSelected(false);
+                tab3.setSelected(false);
+                if (firstFragment == null) {
+                    firstFragment = new FirstFragment();
+                    transaction.add(R.id.fragment_layout, firstFragment);
+                } else {
+                    transaction.show(firstFragment);
+                }
+                break;
+            case TAB_2:
+                tab1.setSelected(false);
+                tab2.setSelected(true);
+                tab3.setSelected(false);
+                if (secondFragment == null) {
+                    secondFragment = new SecondFragment();
+                    transaction.add(R.id.fragment_layout, secondFragment);
+                } else {
+                    transaction.show(secondFragment);
+                }
+                break;
+            case TAB_3:
+                tab1.setSelected(false);
+                tab2.setSelected(false);
+                tab3.setSelected(true);
+                if (thirdFragment == null) {
+                    thirdFragment = new ThirdFragment();
+                    transaction.add(R.id.fragment_layout, thirdFragment);
+                } else {
+                    transaction.show(thirdFragment);
+                }
+                break;
+        }
+        transaction.commitAllowingStateLoss();
+    }
+    private void hideFragment(FragmentTransaction transaction) {
+        if(firstFragment!=null) {
+            transaction.hide(firstFragment);
+        }
+        if(secondFragment!=null) {
+            transaction.hide(secondFragment);
+        }
+        if(thirdFragment!=null) {
+            transaction.hide(thirdFragment);
+        }
     }
 }

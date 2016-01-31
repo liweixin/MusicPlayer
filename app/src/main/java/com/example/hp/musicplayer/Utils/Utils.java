@@ -1,9 +1,11 @@
 package com.example.hp.musicplayer.Utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
 import com.example.hp.musicplayer.API.Search;
+import com.example.hp.musicplayer.MainActivity;
 import com.example.hp.musicplayer.datastructure.SongInfo;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.List;
 public class Utils {
     static Utils utils;
     Context context = null;
+    MainActivity mainActivity;
 
     public static Utils getInstance(){
         if (utils==null){
@@ -23,8 +26,9 @@ public class Utils {
         return utils;
     }
     private Utils(){};
-    public void init(Context context) {
+    public void init(Context context, MainActivity activity) {
         this.context = context;
+        mainActivity = activity;
     }
     public void toast(String info) {
         if(context==null){
@@ -46,7 +50,7 @@ public class Utils {
         List<SongInfo> result = new ArrayList<>();
         for(int i=0; i<len; i++) {
             Search.SongEntity entity = songEntityList.get(i);
-            result.add(new SongInfo(null, entity.getArtistname() ,entity.getSongname()));
+            result.add(new SongInfo(null, entity.getSongname(), entity.getArtistname()));
         }
         return result;
     }
@@ -59,5 +63,11 @@ public class Utils {
         } else {
             return minute + ":" + second;
         }
+    }
+    public MainActivity getMainActivity() {
+        return mainActivity;
+    }
+    public Context getContext() {
+        return context;
     }
 }

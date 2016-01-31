@@ -109,6 +109,12 @@ public class PlayControl {
     public void setCurrentId(int id){
         currentId = id;
     }
+    public void setSize(int size){
+        this.size = size;
+    }
+    public int getSize(int size) {
+        return size;
+    }
     public void nextPlayMode(){
         ++playMode;
         if(playMode==sumOfMode) {

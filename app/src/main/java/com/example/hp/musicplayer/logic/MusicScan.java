@@ -93,7 +93,7 @@ public class MusicScan{
                         }
                         si = new SongInfo(fileList[i].getAbsolutePath(), fileList[i].getName());
                         songList.add(si);  //添加进行歌曲列表songList
-                        Log.e("SongList", fileList[i].getAbsolutePath() + "\n" + fileList[i].getName());
+                        Log.e("SongList QAQ", fileList[i].getAbsolutePath() + "\n" + fileList[i].getName());
                         SQLiteDatabase db = dbHelper.getWritableDatabase();
                         ContentValues values = new ContentValues();
                         values.put("path", si.getPath());
@@ -125,6 +125,9 @@ public class MusicScan{
         scan(root);
     }
     public List<SongInfo> getSongList(){
+        if (songList==null) {
+            songList = new ArrayList<SongInfo>();
+        }
         return songList;
     }
 }

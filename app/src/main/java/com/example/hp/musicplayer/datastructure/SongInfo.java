@@ -28,7 +28,7 @@ public class SongInfo {
         if (len<4) {
             return false;
         } else {
-            String fileNameExtation = st.substring(st.length()-3);
+            String fileNameExtation = st.substring(st.length()-4);
             return Constants.IS_SONG.contains(fileNameExtation);
         }
     }

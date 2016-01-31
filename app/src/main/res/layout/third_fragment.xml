@@ -6,20 +6,12 @@
     <EditText
         android:id="@+id/search_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <LinearLayout
+        android:layout_height="wrap_content"
+        android:text="小苹果" />
+    <Button
+        android:id="@+id/search"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/url_set"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="设置"/>
-        <Button
-            android:id="@+id/url_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="播放"/>
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="搜索"/>
     <include layout="@layout/recycler_view_search" />
 </LinearLayout>

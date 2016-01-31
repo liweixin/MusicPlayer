@@ -142,7 +142,9 @@ public class MusicApi {
                     @Override
                     public void onNext(Search searchSongList) {
                         msearchSongList = searchSongList;
-                        fragment.initRecyclerView(Utils.getInstance().getSongListFromSearch(searchSongList), musicApi);
+                        //fragment.initRecyclerView(Utils.getInstance().getSongListFromSearch(searchSongList));
+                        fragment.updateAdapter(Utils.getInstance().getSongListFromSearch(searchSongList));
+                        fragment.setMusicApiCallBack(musicApi);
                     }
                 });
     }
@@ -166,6 +168,7 @@ public class MusicApi {
                         String downloadUrl = play.getBitrate().getFile_link();
                         Log.e("downloadUrl", downloadUrl);
                         setResult(downloadUrl);
+                        Utils.getInstance().getMainActivity().playOnlineMusic(downloadUrl);
                     }
                 });
     }
